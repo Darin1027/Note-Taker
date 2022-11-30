@@ -5,6 +5,8 @@ const fs = require("fs");
 const util = require("util");
 const PORT = 3001;
 const app = express();
+const db = require("./db/db.json");
+let myArray = db;
 
 // Helper method for generating unique ids
 const uuid = require("./helpers/uuid");
@@ -90,6 +92,15 @@ const readAndAppend = (content, file) => {
     }
   });
 };
+
+app.delete("/api/notes/:id", function (req, res) {
+  console.log("req params", req.params.id);
+  const itemIndex = myArray.findIndex(({ id }) => id === req.params.id);
+  if (itemIndex >= 0) {
+    myArray.splice(itemIndex, 1);
+  }
+  readAndAppend("/api/note");
+});
 
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)
