@@ -35,7 +35,9 @@ Darin Palombo
 
 No tests needed!
 
-# Questions:
+## Questions:
+
+This is too easy = NO QUESTIONS!
 
 ## Reach out to me through Github for any questions:
 
@@ -50,6 +52,8 @@ https://github.com/Darin1027/Note-Taker
 dplb1027@gmail.com
 
 ## Link to sample deployed Note-Taker video:
+
+https://protected-mesa-01801.herokuapp.com/
 
 ## Screenshots of deployed Note-Taker:
 
