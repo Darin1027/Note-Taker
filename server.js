@@ -108,18 +108,6 @@ app.delete("/api/notes/:id", function (req, res) {
   });
 });
 
-// app.delete("/api/notes/:id", function (req, res) {
-//   console.log("req params", req.params.id);
-//   const itemIndex = myArray.findIndex(({ id }) => id === req.params.id);
-//   if (itemIndex >= 0) {
-//     myArray.splice(itemIndex, 1);
-//   }
-//   //! not working
-//   //  readAndAppend(myArray, "/api/note")
-//   //! not working
-//   writeToFile("./db/db.json", res);
-// });
-
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)
 );
