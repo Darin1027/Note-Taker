@@ -7,6 +7,35 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 const db = require("./db/db.json");
 let myArray = db;
+const readFromFile = util.promisify(fs.readFile);
+/**
+ *  Function to write data to the JSON file given a destination and some content
+ *  @param {string} destination The file you want to write to.
+ *  @param {object} content The content you want to write to the file.
+ *  @returns {void} Nothing
+ */
+const writeToFile = (destination, content) =>
+  fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
+    err ? console.error(err) : console.info(`\nData written to ${destination}`)
+  );
+
+/**
+ *  Function to read data from a given a file and append some content
+ *  @param {object} content The content you want to append to the file.
+ *  @param {string} file The path to the file you want to save to.
+ *  @returns {void} Nothing
+ */
+const readAndAppend = (content, file) => {
+  fs.readFile(file, "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+    } else {
+      const parsedData = JSON.parse(data);
+      parsedData.push(content);
+      writeToFile(file, parsedData);
+    }
+  });
+};
 
 // Helper method for generating unique ids
 const uuid = require("./helpers/uuid");
@@ -28,6 +57,7 @@ app.get("/notes", (req, res) =>
 app.get("/api/notes", (req, res) => {
   console.info(`${req.method} request received for notes`);
   readFromFile("./db/db.json").then((data) => res.json(JSON.parse(data)));
+  // res.json(myArray);
 });
 // GET route that returns any specific id
 app.get("/api/notes/:id", (req, res) => {
@@ -63,44 +93,32 @@ app.post("/api/notes", (req, res) => {
   }
 });
 
-const readFromFile = util.promisify(fs.readFile);
-/**
- *  Function to write data to the JSON file given a destination and some content
- *  @param {string} destination The file you want to write to.
- *  @param {object} content The content you want to write to the file.
- *  @returns {void} Nothing
- */
-const writeToFile = (destination, content) =>
-  fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
-    err ? console.error(err) : console.info(`\nData written to ${destination}`)
-  );
-
-/**
- *  Function to read data from a given a file and append some content
- *  @param {object} content The content you want to append to the file.
- *  @param {string} file The path to the file you want to save to.
- *  @returns {void} Nothing
- */
-const readAndAppend = (content, file) => {
-  fs.readFile(file, "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-    } else {
-      const parsedData = JSON.parse(data);
-      parsedData.push(content);
-      writeToFile(file, parsedData);
-    }
-  });
-};
-
 app.delete("/api/notes/:id", function (req, res) {
-  console.log("req params", req.params.id);
-  const itemIndex = myArray.findIndex(({ id }) => id === req.params.id);
-  if (itemIndex >= 0) {
-    myArray.splice(itemIndex, 1);
-  }
-  readAndAppend("/api/note");
+  console.info(`${req.method} request received to delete a note`);
+  fs.readFile(__dirname + "/" + "/db/db.json", "utf8", function (err, data) {
+    data = JSON.parse(data);
+    data = data.filter((x) => x.id != req.params.id);
+    console.log(data);
+    fs.writeFile("./db/db.json", JSON.stringify(data, null, 4), function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      readFromFile("./db/db.json").then((data) => res.json(JSON.parse(data)));
+    });
+  });
 });
+
+// app.delete("/api/notes/:id", function (req, res) {
+//   console.log("req params", req.params.id);
+//   const itemIndex = myArray.findIndex(({ id }) => id === req.params.id);
+//   if (itemIndex >= 0) {
+//     myArray.splice(itemIndex, 1);
+//   }
+//   //! not working
+//   //  readAndAppend(myArray, "/api/note")
+//   //! not working
+//   writeToFile("./db/db.json", res);
+// });
 
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)
